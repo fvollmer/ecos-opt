@@ -1,8 +1,8 @@
 //==========================================================================
 //
-//      include/machine/ansi.h
+//      lib/recv.c
 //
-//      Architecture/platform specifics
+//      recv() system call
 //
 //==========================================================================
 //####COPYRIGHTBEGIN####
@@ -23,7 +23,7 @@
 //                                                                          
 // The Initial Developer of the Original Code is Red Hat.                   
 // Portions created by Red Hat are                                          
-// Copyright (C) 1998, 1999, 2000 Red Hat, Inc.                             
+// Copyright (C) 1998, 1999, 2000, 2001 Red Hat, Inc.                             
 // All Rights Reserved.                                                     
 // -------------------------------------------                              
 //                                                                          
@@ -41,9 +41,9 @@
 //==========================================================================
 //#####DESCRIPTIONBEGIN####
 //
-// Author(s):    gthomas
+// Author(s):    gthomas,andrew.lunn@ascom.ch
 // Contributors: gthomas
-// Date:         2000-01-10
+// Date:         2001-11-01
 // Purpose:      
 // Description:  
 //              
@@ -52,17 +52,16 @@
 //
 //==========================================================================
 
-#ifndef _MACHINE_ANSI_H_
-#define _MACHINE_ANSI_H_
 
-// Mappings of BSD-style functions used in networking code to those provided
-// by the eCos environment.
+#include <sys/param.h>
+#include <cyg/io/file.h>
+#include <sys/socket.h>
+#include <sys/socketvar.h>
 
-externC void net_memcpy(void *d, void *s, int n);
-externC void net_memset(void *s, int v, int n);
-
-#define bcopy(s,d,n) net_memcpy(d,s,n)
-#define bzero(s,n)   net_memset(s,0,n)
-
-#endif // _MACHINE_ANSI_H_
-
+ssize_t	
+recv(int s, const void *buf, size_t buflen, 
+       int flags)
+{
+    
+    return(recvfrom(s,buf,buflen,NULL,0));
+}
