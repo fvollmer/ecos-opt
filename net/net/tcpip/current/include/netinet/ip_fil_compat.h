@@ -62,7 +62,6 @@
  * to the original author and the contributors.
  *
  * @(#)ip_compat.h	1.8 1/14/96
- * $Id: ip_fil_compat.h,v 1.3 2000/03/01 16:38:09 gthomas Exp $
  */
 
 #ifndef	_NETINET_IP_COMPAT_H__

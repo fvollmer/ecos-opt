@@ -62,7 +62,6 @@
  * to the original author and the contributors.
  *
  * @(#)ip_nat.h	1.5 2/4/96
- * $Id: ip_nat.h,v 1.3 2000/03/01 16:38:10 gthomas Exp $
  */
 
 #ifndef	_NETINET_IP_NAT_H__
