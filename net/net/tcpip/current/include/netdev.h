@@ -1,3 +1,5 @@
+#ifndef _NETDEV_H_
+#define _NETDEV_H_
 //==========================================================================
 //
 //      include/netdev.h
@@ -72,3 +74,5 @@ cyg_netdevtab_entry_t _l __attribute__ ((section(".netdevtab"))) = { \
    _init,                                                            \
    _instance                                                         \
 };
+
+#endif // _NETDEV_H_
