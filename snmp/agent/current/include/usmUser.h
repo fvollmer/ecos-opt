@@ -1,85 +1,6 @@
-2001-05-28  Andrew Lunn  <Andrew.Lunn@ascom.ch>
-2001-05-28  Manu Sharma  <Manu.Sharma@ascom.ch>
-
-	* src/snmpusm.c, include/snmpusm.h: Added the ability to tell the
-	agent the time of day has changed. This is used when an NTP client
-	finds out the correct time and jumps time forward by 30 odd years.
-
-	* include/config.h: If we have the OpenSSL package let the SNMP
-	agent use it.
-	
-2001-01-10  Jonathan Larmour  <jlarmour@redhat.com>
-
-	* cdl/snmplib.cdl: Clarify ISO C requirements
-
-2000-11-07  Hugo Tyson  <hmt@redhat.com>
-2000-11-07  Andrew Lunn <Andrew.Lunn@ascom.ch>
-
-	* include/config.h (STRUCT_SOCKADDR_HAS_SA_LEN): #defined.
-	The BSD stack uses sa_len in its sockaddr structures, so the agent
-	must also use them or when it tries to send traps the stack
-	rejects them because the destination addres is invalid.
-
-2000-06-21  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* src/snmp_logging.c: 
-	* src/parse.c: Catch unprotected includes of sys/stat.h,
-	accidentally acquired from the stdinc/newlib world.  Now prevented
-	by the might of #ifndef __ECOS.
-
-2000-06-14  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* cdl/snmplib.cdl: Add option CYGDBG_NET_SNMPLIB_DEBUG to control
-	the standard UCD debugging.
-
-	* include/config.h: React to the above, and remove deal with
-	default definitions from the agent configury for system MIB
-	values.
-
-2000-06-14  John Dallaway  <jld@redhat.com>
-
-	* cdl/snmplib.cdl: Tidy display strings.
-
-2000-06-14  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* cdl/snmplib.cdl: Install all the header files below
-	include/ucd-snmp/ as is the normal host-side standard; this avoids
-	some rather terrible filenamespace pollution too.  That location
-	is also added to the include path, using a mechanism that's rather
-	build-method-specific; it may need revisiting.
-
-2000-06-14  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* cdl/snmplib.cdl: parent this below CYGPKG_NET.
-
-2000-06-12  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* src/system.c (gettimeofday): Simulate this using libc's time()
-	function which will call through to a wallclock of one is present,
-	or just count up from start time.
-
-2000-06-02  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* src/parse.c (add_mibdir): Return no mibs here, oh no; they're
-	not needed for agent use of the library.  Waste of time - unless
-	someone is liable to use the snmplib for tool rather than agent
-	purposes.
-
-	This goes along with the change to the agent to remove the ROFS
-	which contained all the MIBs - I had thought that the library
-	*needed* them to function, but it's not so - reading them in
-	(and complaining of their absence) is part of the snmplib startup,
-	but it's not needed by an agent.  This also means that if
-	reinstated they should live here in the lib component rather than
-	over there in the agent one; oh well.
-
-2000-05-31  Hugo Tyson  <hmt@cygnus.co.uk>
-
-	* Initial commit of port of UCD-SNMP version 4.1.2 to eCos.
-
 //==========================================================================
 //
-//      ./lib/current/ChangeLog
+//      ./agent/current/include/usmUser.h
 //
 //
 //==========================================================================
@@ -101,7 +22,7 @@
 //                                                                          
 // The Initial Developer of the Original Code is Red Hat.                   
 // Portions created by Red Hat are                                          
-// Copyright (C) 1998, 1999, 2000 Red Hat, Inc.                             
+// Copyright (C) 1998, 1999, 2000, 2001 Red Hat, Inc.
 // All Rights Reserved.                                                     
 // -------------------------------------------                              
 //                                                                          
@@ -123,9 +44,9 @@
 //==========================================================================
 //#####DESCRIPTIONBEGIN####
 //
-// Author(s):    hmt
+// Author(s):    Andrew.Lunn@ascom.ch, Manu.Sharma@ascom.ch
 // Contributors: hmt
-// Date:         2000-05-30
+// Date:         2001-05-29
 // Purpose:      Port of UCD-SNMP distribution to eCos.
 // Description:  
 //              
@@ -159,3 +80,62 @@ FROM THE LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
 CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 *********************************************************************/
+/* 
+ * usmUser.h
+ *
+ */
+
+#ifndef _MIBGROUP_USMUSER_H
+#define _MIBGROUP_USMUSER_H
+
+#include "callback.h"
+#include "snmpusm.h"
+
+/* <...prefix>.<engineID_length>.<engineID>.<user_name_length>.<user_name>
+   = 1 + 32 + 1 + 32 */
+#define USM_LENGTH_OID_MAX	66
+
+/* we use header_generic and checkmib from the util_funcs module */
+
+config_require(util_funcs)
+config_add_mib(SNMP-USER-BASED-SM-MIB)
+
+/* Magic number definitions: */
+
+#define   USMUSERSPINLOCK       1
+#define   USMUSERSECURITYNAME   2
+#define   USMUSERCLONEFROM      3
+#define   USMUSERAUTHPROTOCOL   4
+#define   USMUSERAUTHKEYCHANGE  5
+#define   USMUSEROWNAUTHKEYCHANGE  6
+#define   USMUSERPRIVPROTOCOL   7
+#define   USMUSERPRIVKEYCHANGE  8
+#define   USMUSEROWNPRIVKEYCHANGE  9
+#define   USMUSERPUBLIC         10
+#define   USMUSERSTORAGETYPE    11
+#define   USMUSERSTATUS         12
+
+/* function definitions */
+
+extern void   init_usmUser(void);
+extern FindVarMethod var_usmUser;
+
+void shutdown_usmUser(void);
+int store_usmUser(int majorID, int minorID, void *serverarg, void *clientarg);
+oid *usm_generate_OID(oid *prefix, size_t prefixLen, struct usmUser *uptr,
+                  size_t *length);
+int usm_parse_oid(oid *oidIndex, size_t oidLen,
+              unsigned char **engineID, size_t *engineIDLen,
+              unsigned char **name, size_t *nameLen);
+
+WriteMethod write_usmUserSpinLock;
+WriteMethod write_usmUserCloneFrom;
+WriteMethod write_usmUserAuthProtocol;
+WriteMethod write_usmUserAuthKeyChange;
+WriteMethod write_usmUserPrivProtocol;
+WriteMethod write_usmUserPrivKeyChange;
+WriteMethod write_usmUserPublic;
+WriteMethod write_usmUserStorageType;
+WriteMethod write_usmUserStatus;
+
+#endif /* _MIBGROUP_USMUSER_H */
