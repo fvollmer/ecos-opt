@@ -83,19 +83,6 @@ struct servent {
 struct servent *getservbyname(const char *name, const char *proto);
 struct servent *getservbyport(int port, const char *proto);
 
-// Host name / IP mapping
-struct hostent {
-    char    *h_name;        /* official name of host */
-    char    **h_aliases;    /* alias list */
-    int     h_addrtype;     /* host address type */
-    int     h_length;       /* length of address */
-    char    **h_addr_list;  /* list of addresses */
-};
-#define h_addr  h_addr_list[0]  /* for backward compatibility */
-
-struct hostent *gethostbyname(const char *host);
-struct hostent *gethostbyaddr(const char *addr, int len, int type);
-
 #ifdef __cplusplus
 }
 #endif
