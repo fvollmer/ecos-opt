@@ -152,11 +152,25 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
 //==========================================================================
 
-#include <cyg/hal/hal_arch.h>
+
+// Support routines, etc., used by network code
+
+#include <sys/param.h>
+#include <sys/malloc.h>
+#include <sys/mbuf.h>
+#include <sys/kernel.h>
+#include <sys/domain.h>
+#include <sys/protosw.h>
+#include <net/netisr.h>
+
+#include <machine/cpu.h>
+
+#include <cyg/infra/diag.h>
+#include <cyg/hal/hal_intr.h>
 #include <cyg/kernel/kapi.h>
 
-#include <pkgconf/system.h>
-#include CYGDAT_NET_STACK_CFG
+
+
 
 #define STACK_SIZE CYGNUM_HAL_STACK_SIZE_TYPICAL + 102400
 static char netsnmp_stack[STACK_SIZE];
@@ -174,7 +188,7 @@ void (*snmpd_reinit_function)( void ) = NULL;
 externC void snmpd( void (*initfunc)( void ) );
 
 static void
-snmpdloop( cyg_addrword_t data )
+snmpdloop( void )
 {
     while ( 1 )
         snmpd(snmpd_reinit_function);
